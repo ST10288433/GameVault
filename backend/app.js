@@ -20,12 +20,16 @@ responses from the API
 */
 const cors = require("cors");
 
+// import the general apiLimiter
+const {apiLimiter} = require("./middleware/rateLimiters");
+
 /*
 Imports the route files.
 */
 const systemRoutes = require("./routes/systemRoutes");
 const gameRoutes = require("./routes/gameRoutes");
 const authRoutes = require("./routes/authRoutes");
+const collectionRoutes = require("./routes/collectionRoutes");
 
 /*
 Imports the middleware that handles invalid routes and
@@ -95,7 +99,7 @@ app.use(helmet({
 
             // stop the page from being placed inside a frame on another site
             // = prevents clickjacking attacks 
-            FrameAncestors: ["'none'"],
+            frameAncestors: ["'none'"],
 
             // restrict the base url that could be supplied through an HTML base element
             baseUrl: ["'self'"],
@@ -120,7 +124,7 @@ read the approved frontend origin from the .env
 a fallback is given for demo purposes
 */
 const clientOrigin = process.env.CLIENT_ORIGIN ||
-"https://localhost:5173"
+"http://localhost:5173"
 
 /*
 define the browser origins and request information permitted by the CORS response
@@ -171,6 +175,9 @@ client sends JSON.
 */
 app.use(express.json());
 
+// adding rateLimiter
+app.use(apiLimiter);
+
 /*
 Registers the system routes.
 
@@ -212,6 +219,8 @@ router.get("/:id") becomes GET /games/:id
 router.post("/") becomes POST /games
 */
 app.use("/games", gameRoutes);
+
+app.use("/collection", collectionRoutes);
 
 /*
 Handles requests that do not match a valid route.

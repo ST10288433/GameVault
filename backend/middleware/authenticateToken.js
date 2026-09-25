@@ -1,5 +1,7 @@
 const jwt = require ("jsonwebtoken");
 
+const jwtSecret = process.env.JWT_SECRET;
+
 // protect routes that require only auth users to access
 const authenticateToken = (req,res,next) => {
 
@@ -49,7 +51,17 @@ const authenticateToken = (req,res,next) => {
         }
     );
 
+    /*
+    req.user = {add in the role types}
+
+    :
+
+    generateToken
+
+    const - payload - userId, email
+    */
     // add the verifieed id to the req object = protected controllers can now access req.user
+    // req.user
     req.user = decodeToken;
 
     next();

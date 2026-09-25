@@ -1,11 +1,13 @@
 const express = require("express");
 
+const {authLimiter} = require("../middleware/rateLimiters");
+
 /*
 creates an Express router
 The router allows these routes to be grouped
 together and later mounted under /auth.
 */
-const router = express.Router
+const router = express.Router()
 
 /*
 Imports the authentication controller functions.
@@ -23,7 +25,7 @@ const{
     login,
     register,
     getProfile
-} = require("../controllers/AuthController");
+} = require("../controllers/authController");
 
 /*
 Imports the authentication validation middleware.
@@ -63,6 +65,7 @@ Request
 
 router.post(
     "/register",
+    authLimiter,
     validateRegistration,
     register
 );
@@ -81,6 +84,7 @@ Request
 */
 router.post(
     "/login",
+    authLimiter,
     validateLogin,
     login
 );
@@ -111,7 +115,7 @@ router.post(
 /*
 Exports the router so that app.js can import it and mount it.
 */
-module.exports = router;  
+module.exports = router;   
 
 
 

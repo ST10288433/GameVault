@@ -7,45 +7,47 @@ PATCH /games/:id
 the value after games can be found through req,params.id
 */
 
-const validateGameId = (req,res,next)=> {
+/*
+Imports Mongoose so its built-in ObjectId format checker can be
+used here.
+*/
+const mongoose = require("mongoose");
+
+const validateGameId = (req, res, next)=> {
     // route parameters are received as text/string
-    // Number changes the supplied ID into a int
-    const gameId = Number(req.params.id);
+    // Number changes the supplied ID into a int --> const gameId = Number(req.params.id);  OLD ONE!!
+    const gameId = req.params.id;
 
     //a valid game id must be a whole number
     // be >0
 
-    if (
-        !Number.isSafeInteger(gameId) ||
-        gameId <= 0
-    ){
+    if (!mongoose.Types.ObjectId.isValid(gameId)) {
         return res.status(400).json({
-            success:false,
-            error: "Game ID must be a whole number + >0."
+            error: "Game ID must be a valid MongoDB ObjectId."
         });
     }
 
     /*
-    stores the validated number on the requested object
-
-    controllers can now use req.gameId instead of req.params.id
-    tp access the validated number
+    Access control passes to the next middleware/controller in
+    the route (e.g. gameRoutes.js).
     */
+   next();
 
-    req.gameId = gameId;
+};
 
-    // access the control of the next middleware/controller
-    next();
+  /*
+Exports the middleware so route files can reuse the same
+validation for GET, PUT, PATCH and DELETE by ID, instead of each
+controller repeating this check individually.
+*/
+    module.exports = validateGameId;
 
-    // pass to be accessed to the next function in the route
-    // gamesRoute.js
-    Module.exports = validateGameId;
 
-}
 
 // every controller would need to repeat
 // const gameId = Number(req.params.id); and the validation code
 // and then repeat the same validation
+
 
 
 

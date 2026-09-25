@@ -3,41 +3,40 @@ const jwt = require("jsonwebtoken");
 /*
 create a signed JWT for an authenticated user
 
-this utility = keeps token generation logic seperate from the reg and login controllers
+this utility = keeps token generation logic seperate from
+the reg and login controllers
 */
 const generateToken = user => {
 
-    /* read the signing secret from the environment
+    /* read the signing secreet from the environment
+     the app must not generate a token without a secret
+     the same secret is needed later to verify that the token is authentic and hasnt 
+     been changed
+     */
 
-    // the app must not generate a token without a secret
-    // the same secret is needed later to verify that the token is authentic and hasn't 
-    been changed
-    */
     const jwtSecret = process.env.JWT_SECRET;
 
-    if(!jwtSecret){
+    if(!jwtSecret) {
         throw new Error(
             "JWT secret is not valid."
         );
     }
+    /* stores only the claims required by this app, never include passwords, etc
 
-    /*stores only the claims required by this app, never include passwords, etc.
-
-    JWT payloads are encoded and signed but not normally encrypted.
+    JWT payloads are encoded and signed but not normally encrypted. 
     clients can view their payload
     */
-    const payLoad ={
-        userId: user.id,
+    const payload = {
+        userId: user._id.toString(),
         email: user.email,
-        role: user.role
+        role: user.role,
     };
-
-    // sign and return the jwt
+//sign and return the jwt
     return jwt.sign(
         payload,
         jwtSecret,
         {
-            //not a hash alg, its used to sign the token
+            // not a hash alg, it's used to sign the token
             algorithm: "HS256",
             expiresIn: process.env.JWT_EXPIRES_IN || "1h",
             // the app that creates the token
@@ -47,3 +46,5 @@ const generateToken = user => {
         }
     );
 };
+
+module.exports = generateToken;
